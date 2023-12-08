@@ -1,30 +1,26 @@
-# Utilisez une image Python plus légère
-FROM python:3.8-slim
+# base image  
+FROM python:3.8   
+# setup environment variable  
+ENV DockerHOME=/home/app/webapp  
 
-# Créez un utilisateur non-root
-RUN useradd -ms /bin/bash appuser
+# set work directory  
+RUN mkdir -p $DockerHOME  
 
-# Définissez le répertoire de travail et les variables d'environnement
-ENV DockerHOME=/home/app/webapp
-WORKDIR $DockerHOME
+# where your code lives  
+WORKDIR $DockerHOME  
+
+# set environment variables  
 ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED 1  
 
-# Copiez uniquement le fichier requirements.txt pour profiter du cache Docker
-COPY requirements.txt $DockerHOME/
+# install dependencies  
+RUN pip install --upgrade pip  
 
-# Installez les dépendances en spécifiant les versions et en évitant le cache
-RUN pip install --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
-
-# Copiez le reste des fichiers
-COPY . $DockerHOME/
-
-# Définissez l'utilisateur comme utilisateur par défaut
-USER appuser
-
-# Port où l'application Django s'exécute
-EXPOSE 8000
-
-# Point d'entrée pour lancer l'application
-CMD ["./entrypoint.sh"]
+# copy whole project to your docker home directory. 
+COPY . $DockerHOME  
+# run this command to install all dependencies  
+RUN pip install -r requirements.txt --user
+# port where the Django app runs  
+EXPOSE 8000  
+# start server  
+CMD python manage.py runserver
