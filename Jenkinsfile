@@ -21,7 +21,7 @@ pipeline {
         stage('Publish to Docker Hub') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'makrem1', passwordVariable: 'dckr_pat_KdQe8sbXLMzshXxSE0cF5aU91Rs')]) {
                         sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
                         sh 'docker tag django-app $DOCKER_USERNAME/django-app:latest'
                         sh 'docker push $DOCKER_USERNAME/django-app:latest'
