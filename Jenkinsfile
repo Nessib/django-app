@@ -2,30 +2,34 @@ pipeline {
     agent any
 
     stages {
-       stages {
-        stage('Build and Run Django App') {
+        stage('Lint Dockerfile') {
             steps {
                 script {
-                    // Construire l'image Docker
-                    docker.build('django-app')
-
-                    // Exécuter le conteneur Docker
-                    docker.image('django-app').run('-p 8000:8000', '--name django-container')
-
-                    // Attendre quelques secondes pour que l'application démarre (ajuster si nécessaire)
-                    sleep 10
-
-                    // Exécutez des commandes de test ou de vérification si nécessaire
-                    // par exemple : sh 'docker exec django-container python manage.py test'
+                    // Inspect and lint Dockerfile
+                    sh 'docker run --rm -i hadolint/hadolint < Dockerfile'
                 }
             }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    // Build Docker image
+                    sh 'docker build -t django-app:tag .'
+                }
+            }
+        }
 
         stage('Publish to Docker Hub') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'makrem1', passwordVariable: 'dckr_pat_KdQe8sbXLMzshXxSE0cF5aU91Rs')]) {
-                        sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
-                        sh 'docker push makrem1/django-app:latest'
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        // Log in to Docker Hub
+                        sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
+
+                        // Tag and push the Docker image to Docker Hub
+                        sh 'docker tag mon_image:latest mon_username/mon_image:latest'
+                        sh 'docker push mon_username/mon_image:latest'
                     }
                 }
             }
