@@ -17,6 +17,14 @@ pipeline {
                 }
             }
         }
+        
+        stage('Run Locally') {
+            steps {
+                script {
+                    sh 'docker run -p 8000:8000 django-app'
+                }
+            }
+        }
 
         stage('Publish to Docker Hub') {
             steps {
