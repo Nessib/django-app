@@ -13,8 +13,9 @@ ENV PYTHONUNBUFFERED 1
 # Copiez uniquement le fichier requirements.txt pour profiter du cache Docker
 COPY requirements.txt $DockerHOME/
 
-# Installez les dépendances
-RUN pip install --upgrade pip && pip install -r requirements.txt --user
+# Installez les dépendances en spécifiant les versions
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt --user
 
 # Copiez le reste des fichiers
 COPY . $DockerHOME/
