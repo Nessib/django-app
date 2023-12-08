@@ -2,21 +2,23 @@ pipeline {
     agent any
 
     stages {
-        stage('Lint Dockerfile') {
+       stages {
+        stage('Build and Run Django App') {
             steps {
                 script {
-                    sh 'docker run --rm hadolint/hadolint:latest-debian hadolint Dockerfile'
-                }
-            }
-        }
+                    // Construire l'image Docker
+                    docker.build('django-app')
 
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    sh 'docker build -t makrem1/django-app:latest .'
+                    // Exécuter le conteneur Docker
+                    docker.image('django-app').run('-p 8000:8000', '--name django-container')
+
+                    // Attendre quelques secondes pour que l'application démarre (ajuster si nécessaire)
+                    sleep 10
+
+                    // Exécutez des commandes de test ou de vérification si nécessaire
+                    // par exemple : sh 'docker exec django-container python manage.py test'
                 }
             }
-        }
 
         stage('Publish to Docker Hub') {
             steps {
